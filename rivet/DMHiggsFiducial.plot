@@ -2,7 +2,7 @@
 Title=Cutflow
 XLabel=Step
 LogY=0
-XCustomMajorTicks=0	all	1	diph	2	mass 	3	pt1	4	pt2	5	ptgamgam	6	met
+XCustomMajorTicks=0	all	1	$n_\gamma=2$	2	$m_{\gamma\gamma}$ 	3	$p_{\mathrm{T},1}$	4	$p_{\mathrm{T},2}$	5	$p_{\mathrm{T},\gamma\gamma}$	6	$E^\mathrm{miss}_\mathrm{T}$
 # END PLOT
 
 # BEGIN PLOT /DMHiggsFiducial/PhotonPt
