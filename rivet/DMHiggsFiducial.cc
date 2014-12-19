@@ -38,7 +38,7 @@ namespace Rivet {
       //histos  
       _h_MET  = bookHisto1D("MET",40,0,1000);
       _h_PhotonPt  = bookHisto1D("PhotonPt",40,0,1000);
-      _h_Cutflow  = bookHisto1D("Cutflow",6,-0.5,5.5);
+      _h_Cutflow  = bookHisto1D("Cutflow",7,-0.5,6.5);
 
     }
 
@@ -85,7 +85,7 @@ namespace Rivet {
       if(pt1/diphotonmass <= 0.35) return;
       _h_Cutflow->fill(3,weight);
 
-      if(pt1/diphotonmass <= 0.25) return;
+      if(pt2/diphotonmass <= 0.25) return;
       _h_Cutflow->fill(4,weight);
 
       if(diphotonMomentum.pt()/GeV < 90) return;
