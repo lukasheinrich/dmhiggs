@@ -1,0 +1,51 @@
+.dropzone{
+  background-color:#333;
+  height:500px;
+  color:#eee;
+  overflow:scroll;
+}
+
+.dz-progress {
+  height:10px;
+  line-height:10px;
+  background-color:gray;
+}
+
+.dz-progress .dz-upload {
+  background-color:red;
+  height:10px;
+  display:inline-block;
+}
+
+.dz-progress .dz-upload {
+  background-color:steelblue;
+  height:10px;
+  display:inline-block;
+}
+
+.dz-success-mark, .dz-error-mark{
+  visibility:hidden;
+}
+.dz-success .dz-success-mark{
+  visibility: visible;
+}
+
+.dz-error .dz-error-mark{
+  visibility: visible;
+}
+
+.dz-message{
+  top:50%;
+}
+
+.dz-message span{
+  margin:auto;
+  width:50%;
+  text-align:center;
+  display:block;
+}
+
+#drophtml{
+  visibility:hidden;
+  height:0;
+}
