@@ -1,0 +1,29 @@
+# BEGIN PLOT
+DrawOnly=/Users/lukas/Code/atlas/dmhiggs/rivet/Rivet.yoda/DMHiggsFiducial/Cutflow
+Title=Cutflow
+XCustomMajorTicks=0	all	1	$n_\gamma=2$	2	crack	3	$\eta_\mathrm{max}$	4	$m_{\gamma\gamma}$ 	5	$p_{\mathrm{T},\mathrm{min}}$	6	$p_{\mathrm{T},1}$	7	$p_{\mathrm{T},2}$	8	$p_{\mathrm{T},\gamma\gamma}$	9	$E^\mathrm{miss}_\mathrm{T}$
+LogY=1
+XLabel=Step
+Legend=1
+# END PLOT
+
+# BEGIN HISTOGRAM /Users/lukas/Code/atlas/dmhiggs/rivet/Rivet.yoda/DMHiggsFiducial/Cutflow
+LineColor={[HTML]{EE3311}}
+LineStyle=solid
+Path=/Users/lukas/Code/atlas/dmhiggs/rivet/Rivet.yoda/DMHiggsFiducial/Cutflow
+Title=Rivet
+XLabel=
+YLabel=
+# xlow	 xhigh	 val	 errminus	 errplus
+-5.000000e-01	5.000000e-01	5.500000e+04	2.345208e+02	2.345208e+02
+5.000000e-01	1.500000e+00	5.500000e+04	2.345208e+02	2.345208e+02
+1.500000e+00	2.500000e+00	4.788000e+04	2.188150e+02	2.188150e+02
+2.500000e+00	3.500000e+00	4.613700e+04	2.147953e+02	2.147953e+02
+3.500000e+00	4.500000e+00	4.613700e+04	2.147953e+02	2.147953e+02
+4.500000e+00	5.500000e+00	4.146600e+04	2.036320e+02	2.036320e+02
+5.500000e+00	6.500000e+00	4.054400e+04	2.013554e+02	2.013554e+02
+6.500000e+00	7.500000e+00	3.670000e+04	1.915724e+02	1.915724e+02
+7.500000e+00	8.500000e+00	9.624000e+03	9.810199e+01	9.810199e+01
+8.500000e+00	9.500000e+00	9.624000e+03	9.810199e+01	9.810199e+01
+# END HISTOGRAM
+

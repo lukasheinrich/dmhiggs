@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import yoda
 import argparse
 
@@ -10,7 +11,8 @@ def main():
   args = parser.parse_args()
   histos = yoda.readYODA(args.input)
   cutflow = histos['/DMHiggsFiducial/Cutflow']
-  efficiency = cutflow.bins[6].area/cutflow.bins[0].area
+  print '{} out of {} events passed the event selection'.format(cutflow.bins[-1].area,cutflow.bins[0].area) 
+  efficiency = cutflow.bins[-1].area/cutflow.bins[0].area
   print 'fiducial efficiency is {}'.format(efficiency)
   
 if __name__ == '__main__':

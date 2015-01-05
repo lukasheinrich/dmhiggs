@@ -6,6 +6,10 @@
 
 namespace Rivet {
 
+  bool inCrackRegion(double eta){
+    return (1.37 < abs(eta) && abs(eta) < 1.56);
+  }
+
 
   class DMHiggsFiducial : public Analysis {
   public:
@@ -38,7 +42,10 @@ namespace Rivet {
       //histos  
       _h_MET  = bookHisto1D("MET",40,0,1000);
       _h_PhotonPt  = bookHisto1D("PhotonPt",40,0,1000);
-      _h_Cutflow  = bookHisto1D("Cutflow",7,-0.5,6.5);
+      _h_PhotonEta  = bookHisto1D("PhotonEta",40,-3,3);
+
+      int ncuts = 10;
+      _h_Cutflow  = bookHisto1D("Cutflow",ncuts,-0.5,-0.5+ncuts);
 
     }
 
@@ -47,65 +54,71 @@ namespace Rivet {
     void analyze(const Event& event) {
       const double weight = event.weight();
 
-      auto photons = applyProjection<IdentifiedFinalState>(event,"photons");
-      MSG_INFO("Photon multiplicity         = " << photons.particles().size());
+      int cutflowstep = 0;
 
-      foreach (const Particle& p, photons.particles()) {
-        MSG_INFO("photon pid = " << p.pid());
-        _h_PhotonPt->fill(p.momentum().pt(),weight);
-      }
+      Particles photons = applyProjection<IdentifiedFinalState>(event,"photons").particlesByPt();
+      MSG_DEBUG("Photon multiplicity         = " << photons.size());
 
-      auto met = applyProjection<MissingMomentum>(event,"met");
-      double metInGeV = (-met.vectorEt()).mod()/GeV;
-      MSG_INFO("MET is: " << metInGeV);
-      _h_MET->fill(metInGeV,weight);
+      MissingMomentum metproj = applyProjection<MissingMomentum>(event,"met");
+      double met = (-metproj.vectorEt()).mod();
+      MSG_DEBUG("MET is: " << met/GeV << " GeV");
+      _h_MET->fill(met/GeV,weight);
 
-      _h_Cutflow->fill(0,weight);
+      _h_Cutflow->fill(cutflowstep++,weight);
       
 
       //invariant mass
-      if(!photons.particles().size()==2){
+      if(!(photons.size()==2)){
         MSG_WARNING("not a diphoton event, skip!");
         return;
       }
+      _h_Cutflow->fill(cutflowstep++,weight);
 
-      _h_Cutflow->fill(1,weight);
+      if(inCrackRegion(photons[0].momentum().eta()) || inCrackRegion(photons[1].momentum().eta())) return;
+      _h_Cutflow->fill(cutflowstep++,weight);
+
+      const double max_eta = 2.37;
+      if(abs(photons[0].momentum().eta()) > max_eta || abs(photons[1].momentum().eta()) > max_eta) return;
+      _h_Cutflow->fill(cutflowstep++,weight);
       
-      auto diphotonMomentum = photons.particles()[0].momentum()+photons.particles()[1].momentum();
-      auto diphotonmass = diphotonMomentum.mass();
 
-      MSG_INFO("diphoton mass: " << diphotonmass);
+      foreach (const Particle& p, photons) _h_PhotonEta->fill(p.momentum().eta(),weight);
+
+      
+      FourMomentum diphotonMomentum = photons[0].momentum()+photons[1].momentum();
+      double diphotonmass = diphotonMomentum.mass();
+
+      MSG_DEBUG("diphoton mass: " << diphotonmass);
 
       if(diphotonmass < 105 || diphotonmass > 160) return;
-      _h_Cutflow->fill(2,weight);
+      _h_Cutflow->fill(cutflowstep++,weight);
 
-      auto pt1 = photons.particles()[0].momentum().pt();
-      auto pt2 = photons.particles()[1].momentum().pt();
+      double pt1 = photons[0].momentum().pt();
+      double pt2 = photons[1].momentum().pt();
+
+      if(pt1/GeV < 25 || pt2 < 25) return;
+      _h_Cutflow->fill(cutflowstep++,weight);
+      
+      foreach (const Particle& p, photons) _h_PhotonPt->fill(p.momentum().pt()/GeV,weight);
 
       if(pt1/diphotonmass <= 0.35) return;
-      _h_Cutflow->fill(3,weight);
+      _h_Cutflow->fill(cutflowstep++,weight);
 
       if(pt2/diphotonmass <= 0.25) return;
-      _h_Cutflow->fill(4,weight);
-
-      if(diphotonMomentum.pt()/GeV < 90) return;
-      _h_Cutflow->fill(5,weight);
-
-      if(metInGeV < 90) return;
-      _h_Cutflow->fill(6,weight);
+      _h_Cutflow->fill(cutflowstep++,weight);
       
-      MSG_INFO("good candidate event.");
+      if(diphotonMomentum.pt() < 90*GeV) return;
+      _h_Cutflow->fill(cutflowstep++,weight);
+
+      if(met/GeV < 90) return;
+      _h_Cutflow->fill(cutflowstep++,weight);
+      
+      MSG_DEBUG("good candidate event.");
     }
 
 
     /// Normalise histograms etc., after the run
     void finalize() {
-
-      /// @todo Normalise, scale and otherwise manipulate histograms here
-
-      // scale(_h_YYYY, crossSection()/sumOfWeights()); // norm to cross section
-      // normalize(_h_YYYY); // normalize to unity
-
     }
 
     //@}
@@ -122,6 +135,7 @@ namespace Rivet {
     //@{
     Histo1DPtr _h_MET;
     Histo1DPtr _h_PhotonPt;
+    Histo1DPtr _h_PhotonEta;
     Histo1DPtr _h_Cutflow;
     //@}
 
