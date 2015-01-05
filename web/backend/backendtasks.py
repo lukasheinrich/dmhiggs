@@ -56,8 +56,9 @@ def rivet(jobguid):
 
   yodafile = '{}/Rivet.yoda'.format(workdir)
   plotdir = '{}/plots'.format(workdir)
-  subprocess.call(['rivet','-a','DMHiggsFiducial','-H',yodafile,'--analysis-path=/Users/lukas/Code/atlas/dmhiggs/rivet']+hepmcfiles)
-  subprocess.call(['rivet-mkhtml','-c','../../DMHiggsFiducial.plot','-o',plotdir,yodafile])
+  analysisdir = os.path.abspath('../../rivet')
+  subprocess.call(['rivet','-a','DMHiggsFiducial','-H',yodafile,'--analysis-path={}'.format(analysisdir)]+hepmcfiles)
+  subprocess.call(['rivet-mkhtml','-c','../../rivet/DMHiggsFiducial.plot','-o',plotdir,yodafile])
   io.Of('/monitor').Emit('rivet_done_{}'.format(jobguid))
 
   return jobguid
@@ -73,6 +74,9 @@ def pythia(jobguid):
   print 'found {} event files'.format(len(eventfiles))
   
   env = jinja2.Environment(undefined=jinja2.StrictUndefined)
+
+
+  if not eventfiles: raise IOError
 
   for file in eventfiles:
     absinputfname = os.path.abspath(file)
