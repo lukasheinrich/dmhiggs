@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block postheader %}
+
+{% endblock %}
+        
+{% block prebody %}
+    <link rel="stylesheet" href="//cdn.datatables.net/1.10.4/css/jquery.dataTables.min.css">
+    <script src="//cdn.datatables.net/1.10.4/js/jquery.dataTables.min.js"></script>
+
+    <link rel="stylesheet" href="//cdn.datatables.net/plug-ins/3cfcc339e89/integration/bootstrap/3/dataTables.bootstrap.css">
+    <script src="//cdn.datatables.net/plug-ins/3cfcc339e89/integration/bootstrap/3/dataTables.bootstrap.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('#nav-allreq').addClass('active')
+        
+        $('.detail-btn').click(function(){
+            var requestId = $(this).attr('data-requestId')
+            console.log(requestId)
+            location.href = location.origin + '/request/' + requestId
+        })
+        $('.process-btn').click(function(){
+            var requestId = $(this).attr('data-requestId')
+            console.log(requestId)
+            $.ajax(location.origin+'/process/'+requestId,{
+                complete: function(data){
+                    var jobguid = data['responseJSON']['jobguid']
+                    console.log('got jobguid: '+jobguid)
+                    location.href = location.origin+'/monitor/' + jobguid
+                }
+            })
+        })
+
+        $('.result-btn').click(function(){
+            var requestId = $(this).attr('data-requestId')
+            location.href = location.origin + '/result/' + requestId
+        })
+
+        $('.result-btn').each(function(){
+            var button = $(this)
+            var requestId = $(this).attr('data-requestId')
+            var resultsAvailable = false
+            $.ajax(location.origin+'/status/'+requestId,{
+                async: false,
+                complete: function(data){
+                    resultsAvailable = data['responseJSON']['resultsAvailable']
+                    if(!resultsAvailable){
+                        button.addClass('disabled')
+                    }                    
+                }
+            })
+        })
+
+
+
+    })
+
+</script>
+
+{% endblock %}
+
+{% block container%}
+<div class="page-header">
+    <h1>Recast Requests</h1>
+</div>
+
+<div class="row">
+
+    <table id="requestsTable" class="table table-striped">
+        <thead>
+            <tr>
+                <th>Requestor</th>
+                <th>RequestId</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in requestsData %}
+                <tr>
+                    <td>{{row['requestor']}}</td><td>{{row['requestId']}}</td>
+                    <td><button data-requestId="{{row['requestId']}}" class="btn btn-default detail-btn">details</button>
+                        <button data-requestId="{{row['requestId']}}" class="btn btn-default process-btn">process</button>
+                        <button data-requestId="{{row['requestId']}}" class="btn btn-default result-btn">results</button>
+                        </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

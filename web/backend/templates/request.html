@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+        
+{% block prebody %}
+<script type="text/javascript">
+$(document).ready(function(){
+    
+    $("#process").click(function(){
+        requestId = '{{requestData['requestId']}}'
+        console.log('processing request with id: '+requestId)
+        $.ajax(location.origin+'/process/'+requestId,{
+            complete: function(data){
+                var taskid = data['responseJSON']['jobguid']
+                console.log('got taskid: '+taskid)
+                location.href = location.origin+'/monitor/' + taskid
+            }
+        })
+    })
+});
+</script>
+
+{% endblock %}
+
+{% block container%}
+<div class="page-header">
+    <h1>Recast Request <small>{{requestData['requestId']}}</small></h1>
+</div>
+
+<div class="row">
+
+    <dl class="dl-horizontal">
+    {% for key,value in requestData.iteritems() %}
+      <dt>{{key}}</dt>
+      <dd>{{value}}</dd>
+    {% endfor %}
+    </dl>
+    <button class="btn btn-default" id="process">process request</button>
+</div>
+{% endblock %}

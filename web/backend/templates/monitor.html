@@ -1,117 +1,54 @@
-<!-- Latest compiled and minified CSS -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Mono-Higgs Fiducial Efficiencies - Job Monitor   </title>
-
-    <!-- Bootstrap -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{{ url_for('static',filename='css/style.css')}}">
-
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-        <![endif]-->
-    </head>
-    <body>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
-
-
-        <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        <!-- Include all compiled plugins (below), or include individual files as needed -->
-        <script src="{{ url_for('static',filename='bootstrap/js/bootstrap.min.js')}}"></script>
-        <script src="{{ url_for('static',filename='js/dropzone.js')}}"></script>
+{% extends "base.html" %}
         
-        <script type="text/javascript">
+{% block prebody %}
+<script type="text/javascript">
 
-        function postplots(){
-            var plots = ["PhotonPt","PhotonEta","MET","Cutflow"];
-            $.each(plots,function(i){
-                console.log(plots[i])
-                $('#DMHiggsFiducial-'+plots[i]+' .thumbnail img').attr('src',location.origin+'/plots/{{jobguid}}/'+plots[i]+'.png')
-                $('#DMHiggsFiducial-'+plots[i]+' .datalink').attr('href',location.origin+'/plots/{{jobguid}}/'+plots[i]+'.dat')
-                $('#DMHiggsFiducial-'+plots[i]+' .thumbnail').attr('href',location.origin+'/plots/{{jobguid}}/'+plots[i]+'.pdf')      
-            })
-        } 
+function postplots(){
+    var plots = ["PhotonPt","PhotonEta","MET","Cutflow"];
+    $.each(plots,function(i){
+        console.log(plots[i])
+        $('#DMHiggsFiducial-'+plots[i]+' .thumbnail img').attr('src',location.origin+'/plots/{{jobguid}}/'+plots[i]+'.png')
+        $('#DMHiggsFiducial-'+plots[i]+' .datalink').attr('href',location.origin+'/plots/{{jobguid}}/'+plots[i]+'.dat')
+        $('#DMHiggsFiducial-'+plots[i]+' .thumbnail').attr('href',location.origin+'/plots/{{jobguid}}/'+plots[i]+'.pdf')      
+    })
+} 
 
-        $(document).ready(function(){
-            $('#plotpanel-box').hide()
-            
-            var socket = io.connect('http://' + document.domain + ':' + location.port + '/monitor');
-            socket.emit('subscribe',{data: 'taskid'});
-
-            socket.on('pythia_done_{{jobguid}}',function(data){
-                $("#pythia_status").addClass("list-group-item-success");
-            })
-
-            
-            
-
-            socket.on('rivet_done_{{jobguid}}',function(data){
-                $("#rivet_status").addClass("list-group-item-success");
-                var efficiency = undefined
-                $.ajax(location.origin+'/efficiency/{{jobguid}}',{
-                    async: false,
-                    complete: function(data){
-                        efficiency = data['responseJSON']['efficiency']
-                    }
-                })
-                $('#efficiency-panel a').html(efficiency)
-                postplots()
-                $('#plotpanel-box').show()
-                
-            })
-        });
-        </script>
-
-        <div class="page-header">
-            <h1>Job Monitor for <small>{{jobguid}}</small></h1>
-        </div>
-
-        <div id="container-fluid">
-        <div id="row">
-            <ul class="list-group">
-              <li id="pythia_status" class="list-group-item">Pythia</li>
-              <li id="rivet_status"  class="list-group-item">Rivet</li>
-            </ul>
-
-            <div class="panel panel-default">
-              <div class="panel-heading">
-                <h3 class="panel-title">Efficiency</h3>
-              </div>
-              <div class="panel-body" id="efficiency-panel">
-                  <a href="/efficiency/{{jobguid}}"></a>
-              </div>
-            </div>
-
-            <div id="plotpanel-box" class="panel panel-default">
-              <div class="panel-heading">
-                <h3 class="panel-title">Plots</h3>
-              </div>
-              <div class="panel-body" id="plot-panel">
-
-              {% for plot in ['Cutflow','PhotonPt','PhotonEta','MET'] %}
-                  <div class="col-md-3" id="DMHiggsFiducial-{{plot}}" name="DMHiggsFiducial-{{plot}}">>
-                    <a href="#DMHiggsFiducial-{{plot}}">&#9875;</a><a href="" class="datalink">&#8984</a> {{plot}}:<br/>
-                    <a href="" class="thumbnail">
-                        <img src="">
-                    </a>
-                  </div>
-
-              {% endfor %}
-              </div>
-            </div>
-
-        </div>
-        </div>
+$(document).ready(function(){
+    $('#plotpanel-box').hide()
     
+    var socket = io.connect('http://' + document.domain + ':' + location.port + '/monitor');
+    socket.emit('subscribe',{data: 'taskid'});
 
-    
-    </body>
-    </html>
+    socket.on('pythia_status_{{jobguid}}',function(data){
+        $("#pythia_status").html('Pythia ('+0+'/'+10+')')
+    })
+
+
+    socket.on('pythia_done_{{jobguid}}',function(data){
+        $("#pythia_status").addClass("list-group-item-success");
+    })
+
+    socket.on('rivet_done_{{jobguid}}',function(data){
+        $("#rivet_status").addClass("list-group-item-success");
+    })
+
+    socket.on('postresults_done_{{jobguid}}',function(data){
+        location.href = location.origin + '/result/' + data['requestId']
+    })
+});
+</script>
+
+{% endblock %}
+
+{% block container%}
+<div class="page-header">
+    <h1>Job Monitor for <small>{{jobguid}}</small></h1>
+</div>
+
+<div class="row">
+    <ul class="list-group">
+      <li id="pythia_status" class="list-group-item">Pythia</li>
+      <li id="rivet_status"  class="list-group-item">Rivet</li>
+    </ul>
+</div>
+{% endblock %}
